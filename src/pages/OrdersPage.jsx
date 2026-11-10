@@ -15,7 +15,7 @@ const SPEC = { email, orderNumber };
 
 export default function OrdersPage({ justPaid = false }) {
   useSeo({ title: 'My orders', path: '/orders', noindex: true });
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { orders: accountOrders, refresh, markSeen, isUpdated } = useOrderAlerts();
   const [guestOrders, setGuestOrders] = useState(null);
   const [error, setError] = useState('');
@@ -23,8 +23,8 @@ export default function OrdersPage({ justPaid = false }) {
   const [busy, setBusy] = useState(false);
   const { errors, clear, blur, validate } = useFormValidation(SPEC);
 
-  const orders = user?.trusted ? accountOrders : guestOrders;
-  const showLookupForm = !user?.trusted && !guestOrders;
+  const orders = user ? accountOrders : guestOrders;
+  const showLookupForm = !authLoading && !user && !guestOrders;
 
   useEffect(() => {
     if (!justPaid) return;

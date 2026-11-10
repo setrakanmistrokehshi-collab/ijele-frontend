@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Coins, Mail, MapPin, Menu, Moon, Package, ShoppingBag, Sun, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
@@ -19,6 +19,7 @@ const MAIN_LINKS = [
 ];
 
 export default function Header() {
+  const { pathname } = useLocation();
   const { count, openCart } = useCart();
   const { currency, setCurrency, theme, toggleTheme } = useSettings();
   const { user, signOut } = useAuth();
@@ -76,9 +77,9 @@ export default function Header() {
             {theme === 'dark' ? <Sun /> : <Moon />}<span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
           </button>
           <label className="mi"><Coins />Currency {currencySelect}</label>
-          {user
+          {pathname !== '/checkout' && (user
             ? <button type="button" className="mi" onClick={signOut}>Signed in as {user.name} · Sign out</button>
-            : <div className="mi"><GoogleSignInButton /></div>}
+            : <div className="mi"><GoogleSignInButton /></div>)}
         </nav>
       </aside>
     </>

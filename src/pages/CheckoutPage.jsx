@@ -6,11 +6,12 @@ import { toUserMessage } from '../services/httpClient.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
+import GoogleSignInButton from '../components/GoogleSignInButton.jsx';
 import { useSeo } from '../hooks/useSeo.js';
 import { useFormValidation } from '../hooks/useFormValidation.js';
 import Field from '../components/Field.jsx';
 import { CHECKOUT_ATTEMPT_KEY, CHECKOUT_DRAFT_KEY, sessionDraft } from '../utils/storage.js';
-import { email as emailRule, line, phone as phoneRule } from '../utils/validation.js';
+import { line, phone as phoneRule } from '../utils/validation.js';
 import { formatMoney } from '../utils/money.js';
 import { USD_EXCHANGE_RATES, shippingFee, countriesFromZones, freeShippingFromUsd } from '../utils/shipping.js';
 import { useZones } from '../hooks/useZones.js';
@@ -18,10 +19,10 @@ import { DELIVERY } from '../content/business.js';
 
 // Mirrors the server's checkout rules; address.name is "first last" and the server allows 120 characters in total.
 const SPEC = {
-  email: emailRule, phone: phoneRule(), firstName: line('First name', { max: 58 }), lastName: line('Last name', { max: 58 }),
+  phone: phoneRule(), firstName: line('First name', { max: 58 }), lastName: line('Last name', { max: 58 }),
   line1: line('Street address', { max: 200 }), city: line('City', { max: 100 }), postal: line('Postal code', { max: 20 }),
 };
-const EMPTY_FORM = { email: '', phone: '', firstName: '', lastName: '', line1: '', city: '', postal: '', country: 'Nigeria', state: '', method: 'standard' };
+const EMPTY_FORM = { phone: '', firstName: '', lastName: '', line1: '', city: '', postal: '', country: 'Nigeria', state: '', method: 'standard' };
 
 /** Only ever navigate to the payment provider's own https domain. */
 function redirectToPayment(url) {
@@ -34,19 +35,34 @@ export default function CheckoutPage() {
   useSeo({ title: 'Checkout', path: '/checkout', noindex: true });
   const { items, subtotal } = useCart();
   const { currency } = useSettings();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   // The form is kept for the life of the tab, so a reload, a dropped connection or a cancelled payment brings the
   // customer back to what they had typed. It is cleared once the order is paid (see OrdersPage).
-  const [form, setForm] = useState(() => ({ ...EMPTY_FORM, ...sessionDraft.get(CHECKOUT_DRAFT_KEY, {}) }));
+  const [form, setForm] = useState(() => {
+    const draft = sessionDraft.get(CHECKOUT_DRAFT_KEY, {});
+    delete draft.email;
+    return { ...EMPTY_FORM, ...draft };
+  });
   useEffect(() => sessionDraft.set(CHECKOUT_DRAFT_KEY, form), [form]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const { errors, clear, blur, validate } = useFormValidation(SPEC);
   const zones = useZones();
+  const attemptRef = useRef(sessionDraft.get(CHECKOUT_ATTEMPT_KEY, { basket: '', key: '' }));
 
   if (items.length === 0) return <div className="wrap sec"><h1 className="pg">Your bag is empty</h1><Link className="cta" to="/">Continue shopping</Link></div>;
+  if (authLoading) return <div className="wrap sec"><h1 className="pg">Checkout</h1><p role="status">Checking your sign-in…</p></div>;
+  if (!user) {
+    return (
+      <div className="wrap sec">
+        <h1 className="pg">Sign in to continue</h1>
+        <p className="lede">Sign in with Google before checkout so your order is securely linked to your account and available in My orders.</p>
+        <GoogleSignInButton required />
+      </div>
+    );
+  }
 
-  const email = user?.trusted ? user.email : form.email;
+  const email = user.email;
   const fee = shippingFee(zones, form.country, form.state, form.city, form.method, currency, subtotal);
   const freeFromUsd = freeShippingFromUsd(zones);
   const countries = countriesFromZones(zones).length > 0 ? countriesFromZones(zones) : ['Nigeria'];
@@ -57,9 +73,8 @@ export default function CheckoutPage() {
   // basket gets a fresh key.
   // The key is also kept for the tab: if the connection drops AFTER the server created the order, reloading and
   // pressing Pay again returns the same payment page instead of making a second order.
-  const attemptRef = useRef(sessionDraft.get(CHECKOUT_ATTEMPT_KEY, { basket: '', key: '' }));
   function idempotencyKeyFor(basket) {
-    const serialised = JSON.stringify(basket);
+    const serialised = JSON.stringify({ basket, customerEmail: user.email });
     if (attemptRef.current.basket !== serialised) {
       attemptRef.current = { basket: serialised, key: crypto.randomUUID() };
       sessionDraft.set(CHECKOUT_ATTEMPT_KEY, attemptRef.current);
@@ -70,7 +85,7 @@ export default function CheckoutPage() {
   async function handleSubmit(event) {
     event.preventDefault();
     if (isSubmitting) return;
-    const { ok, values } = validate({ ...form, email }, event.currentTarget);
+    const { ok, values } = validate(form, event.currentTarget);
     if (!ok) return; // nothing invalid ever reaches the server
     setIsSubmitting(true);
     setError('');
@@ -78,7 +93,6 @@ export default function CheckoutPage() {
       const basket = {
         currency,
         items: items.map(({ sku, quantity }) => ({ sku, qty: quantity })), // never prices: the server looks those up
-        email: values.email,
         phone: values.phone,
         address: { name: `${values.firstName} ${values.lastName}`, line1: values.line1, city: values.city, postal: values.postal },
         shipping: { country: form.country, state: form.state, city: form.city, method: form.method === 'express' ? 'exp' : 'std' },
@@ -101,7 +115,7 @@ export default function CheckoutPage() {
       <form className="co" onSubmit={handleSubmit} noValidate>
         <div className="body">
           <fieldset><legend>Contact</legend><div className="stack">
-            {field('email', 'Email address', { type: 'email', autoComplete: 'email', readOnly: Boolean(user?.trusted) })}
+            <Field name="email" type="email" label="Google account email" autoComplete="email" value={email} readOnly />
             {field('phone', 'Phone number', { type: 'tel', autoComplete: 'tel', minLength: 7, maxLength: 20 })}
           </div></fieldset>
           <fieldset><legend>Delivery address</legend><div className="stack">

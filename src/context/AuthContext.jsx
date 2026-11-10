@@ -8,9 +8,15 @@ export const useAuth = () => useContext(AuthContext);
 /** Customer session state. The session itself lives in an HttpOnly cookie; JavaScript never sees a token. */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    accountApi.currentUser().then((data) => setUser(data.user)).catch(() => setUser(null)); // 401 simply means "signed out"
+    let active = true;
+    accountApi.currentUser()
+      .then((data) => { if (active) setUser(data.user); })
+      .catch(() => { if (active) setUser(null); }) // 401 simply means "signed out"
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   const signIn = useCallback(async (googleCredential) => {
@@ -27,6 +33,6 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ user, signIn, signOut }), [user, signIn, signOut]);
+  const value = useMemo(() => ({ user, loading, signIn, signOut }), [user, loading, signIn, signOut]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

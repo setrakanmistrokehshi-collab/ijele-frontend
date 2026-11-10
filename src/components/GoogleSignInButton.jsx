@@ -16,10 +16,11 @@ function loadGoogleScript() {
 }
 
 /** Renders Google's own button when the server has a client id configured; renders nothing otherwise. */
-export default function GoogleSignInButton() {
+export default function GoogleSignInButton({ required = false }) {
   const { signIn } = useAuth();
   const containerRef = useRef(null);
   const [message, setMessage] = useState('');
+  const [availability, setAvailability] = useState('loading');
 
   useEffect(() => {
     let cancelled = false;
@@ -35,24 +36,32 @@ export default function GoogleSignInButton() {
         callback: async ({ credential }) => {
           try {
             await signIn(credential);
+            setMessage('');
           } catch (error) {
             setMessage(toUserMessage(error));
-            prepareButton(googleClientId).catch(() => {}); // the used nonce is gone, so get a new one for the retry
+            prepareButton(googleClientId).catch(() => {
+              if (!cancelled) setAvailability('error');
+            }); // the used nonce is gone, so get a new one for the retry
           }
         },
       });
       window.google.accounts.id.renderButton(containerRef.current, {
         theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with',
       });
+      setAvailability('ready');
     }
 
     configApi.get()
       .then(async ({ googleClientId }) => {
-        if (!googleClientId) return;
+        if (cancelled) return;
+        if (!googleClientId) {
+          setAvailability('unconfigured');
+          return;
+        }
         await loadGoogleScript();
         await prepareButton(googleClientId);
       })
-      .catch(() => { /* sign-in is optional: the shop works without it */ });
+      .catch(() => { if (!cancelled) setAvailability('error'); });
 
     return () => { cancelled = true; };
   }, [signIn]);
@@ -60,6 +69,9 @@ export default function GoogleSignInButton() {
   return (
     <>
       <div ref={containerRef} />
+      {required && availability === 'loading' && <p className="help-text" role="status">Preparing Google sign-in…</p>}
+      {required && availability === 'unconfigured' && <p className="field-error" role="alert">Google sign-in is not configured. Please contact support.</p>}
+      {required && availability === 'error' && <p className="field-error" role="alert">Google sign-in is unavailable right now. Please try again later.</p>}
       {message && <p className="field-error" role="alert">{message}</p>}
     </>
   );

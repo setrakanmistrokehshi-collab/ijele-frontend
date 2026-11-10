@@ -13,13 +13,18 @@ export const useOrderAlerts = () => useContext(OrderAlertsContext);
 export function OrderAlertsProvider({ children }) {
   const { user } = useAuth();
   const [orders, setOrders] = useState(null);
+  const [loadedUser, setLoadedUser] = useState(null);
   const [seen, setSeen] = useState(() => storage.get(SEEN_KEY, {}));
   const ordersRef = useRef([]);
-  ordersRef.current = orders ?? [];
+  const currentOrders = loadedUser === user ? orders : null;
+  ordersRef.current = currentOrders ?? [];
 
   const refresh = useCallback(async () => {
-    if (!user?.trusted) { setOrders(null); return; }
-    try { setOrders((await accountApi.listOrders()).orders); } catch { /* keep the last known list */ }
+    if (!user) { setOrders(null); setLoadedUser(null); return; }
+    try {
+      setOrders((await accountApi.listOrders()).orders);
+      setLoadedUser(user);
+    } catch { /* keep the last known list for this signed-in user */ }
   }, [user]);
 
   useEffect(() => {
@@ -36,8 +41,8 @@ export function OrderAlertsProvider({ children }) {
   }), []);
 
   const value = useMemo(
-    () => ({ orders, refresh, markSeen, isUpdated, unseenCount: (orders ?? []).filter(isUpdated).length }),
-    [orders, refresh, markSeen, isUpdated],
+    () => ({ orders: currentOrders, refresh, markSeen, isUpdated, unseenCount: (currentOrders ?? []).filter(isUpdated).length }),
+    [currentOrders, refresh, markSeen, isUpdated],
   );
   return <OrderAlertsContext.Provider value={value}>{children}</OrderAlertsContext.Provider>;
 }
