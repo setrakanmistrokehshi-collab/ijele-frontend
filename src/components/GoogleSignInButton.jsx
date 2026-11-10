@@ -15,7 +15,7 @@ function loadGoogleScript() {
   });
 }
 
-/** Renders Google's own button when the server has a client id configured; renders nothing otherwise. */
+/** Renders Google's button when configured and reports setup failures when sign-in is required. */
 export default function GoogleSignInButton({ required = false }) {
   const { signIn } = useAuth();
   const containerRef = useRef(null);

@@ -16,13 +16,17 @@ export function OrderAlertsProvider({ children }) {
   const [loadedUser, setLoadedUser] = useState(null);
   const [seen, setSeen] = useState(() => storage.get(SEEN_KEY, {}));
   const ordersRef = useRef([]);
+  const userRef = useRef(user);
+  userRef.current = user;
   const currentOrders = loadedUser === user ? orders : null;
   ordersRef.current = currentOrders ?? [];
 
   const refresh = useCallback(async () => {
     if (!user) { setOrders(null); setLoadedUser(null); return; }
     try {
-      setOrders((await accountApi.listOrders()).orders);
+      const nextOrders = (await accountApi.listOrders()).orders;
+      if (userRef.current !== user) return;
+      setOrders(nextOrders);
       setLoadedUser(user);
     } catch { /* keep the last known list for this signed-in user */ }
   }, [user]);

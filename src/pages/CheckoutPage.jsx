@@ -68,9 +68,8 @@ export default function CheckoutPage() {
   const countries = countriesFromZones(zones).length > 0 ? countriesFromZones(zones) : ['Nigeria'];
   const handleChange = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
 
-  // One random key per basket. If a request is retried (a slow network, a second tap) with the SAME basket, the
-  // server recognises the key and returns the same payment page instead of creating a second order. A changed
-  // basket gets a fresh key.
+  // One random key per customer and basket. If a request is retried (a slow network, a second tap), the server
+  // returns the same payment page instead of creating a second order. A changed basket or account gets a fresh key.
   // The key is also kept for the tab: if the connection drops AFTER the server created the order, reloading and
   // pressing Pay again returns the same payment page instead of making a second order.
   function idempotencyKeyFor(basket) {
