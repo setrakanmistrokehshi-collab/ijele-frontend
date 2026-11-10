@@ -1,0 +1,27 @@
+{
+  "name": "aurora-storefront",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "node --env-file=.env server/index.js",
+    "audit": "npm audit --omit=dev"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.6.1",
+    "axios": "1.21.0",
+    "lucide-react": "0.469.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-router-dom": "7.18.5",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.6.0",
+    "vite": "7.3.7"
+  }
+}
