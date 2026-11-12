@@ -261,7 +261,11 @@ footer { border-top: 1px solid var(--ink); margin-top: var(--s-6); padding: var(
 .body section p { margin: 0 0 var(--s-2); max-width: var(--measure); }
 .buy { display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap; margin-top: var(--s-5); }
 .buy .qty { margin: 0; }
-.buy .cta { flex: 1 1 12rem; }
+.product-total { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); flex: 1 1 100%; padding: var(--s-3) 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.product-total span { color: var(--ink-2); font-size: var(--t-sm); }
+.product-total strong { font-size: var(--t-xl); font-variant-numeric: tabular-nums; }
+.product-actions { display: flex; flex: 1 1 100%; flex-wrap: wrap; gap: var(--s-3); }
+.product-actions .cta { flex: 1 1 12rem; }
 .crumbs { font-size: var(--t-sm); color: var(--ink-2); }
 .crumbs a { text-decoration: underline; text-underline-offset: .2em; }
 @media (max-width: 900px) { .dlg { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); } }

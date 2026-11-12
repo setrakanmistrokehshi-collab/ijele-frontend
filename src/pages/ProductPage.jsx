@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Gift } from 'lucide-react';
 import { catalogApi } from '../services/api.js';
 import ProductGallery from '../components/ProductGallery.jsx';
@@ -17,6 +17,7 @@ const POLICY_TITLES = [['returns', 'Returns'], ['authenticity', 'Authenticity'],
 
 export default function ProductPage() {
   const { sku } = useParams();
+  const navigate = useNavigate();
   const { currency } = useSettings();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -49,6 +50,10 @@ export default function ProductPage() {
   }
 
   const addToBag = () => { for (let i = 0; i < quantity; i += 1) addItem(product); };
+  const checkoutNow = () => {
+    addToBag();
+    navigate('/checkout');
+  };
   return (
     <div className="wrap sec">
       <nav className="crumbs" aria-label="Breadcrumb"><Link to="/">The collection</Link> / <Link to={`/?category=${product.category}`}>{product.category}</Link></nav>
@@ -72,7 +77,18 @@ export default function ProductPage() {
               <span aria-live="polite" aria-label={`Quantity ${quantity}`}>{quantity}</span>
               <button type="button" aria-label="Increase quantity" onClick={() => setQuantity((q) => Math.min(10, q + 1))}>+</button>
             </div>
-            <button className="cta" type="button" disabled={!product.inStock} onClick={addToBag}>{product.inStock ? 'Add to bag' : 'Sold out'}</button>
+            <div className="product-total" aria-live="polite">
+              <span>For {quantity} {quantity === 1 ? 'piece' : 'pieces'}</span>
+              <strong>{formatMoney(product.prices[currency] * quantity, currency)}</strong>
+            </div>
+            <div className="product-actions">
+              <button className="cta quiet" type="button" disabled={!product.inStock} onClick={addToBag}>
+                {product.inStock ? 'Add to bag' : 'Sold out'}
+              </button>
+              <button className="cta" type="button" disabled={!product.inStock} onClick={checkoutNow}>
+                Checkout
+              </button>
+            </div>
           </div>
         </div>
       </article>

@@ -33,6 +33,7 @@ export function OrderAlertsProvider({ children }) {
     }
     try {
       const nextOrders = (await accountApi.listOrders()).orders;
+      if (!Array.isArray(nextOrders)) throw new Error('The orders response was not a list.');
       if (userRef.current !== user) return;
       setOrders(nextOrders);
       setLoadedUser(user);
@@ -52,7 +53,7 @@ export function OrderAlertsProvider({ children }) {
   }, [refresh]);
 
   const isUpdated = useCallback((order) => (seen[order.orderNumber] ?? -1) < order.step, [seen]);
-  const status = !user ? 'idle' : currentOrders !== null ? 'ready' : failedUser === user ? 'error' : 'loading';
+  const status = !user ? 'idle' : failedUser === user ? 'error' : currentOrders !== null ? 'ready' : 'loading';
   const error = failedUser === user ? loadError : null;
   const markSeen = useCallback(() => setSeen((previous) => {
     const next = { ...previous, ...Object.fromEntries(ordersRef.current.map((o) => [o.orderNumber, o.step])) };
