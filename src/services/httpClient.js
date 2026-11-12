@@ -34,7 +34,7 @@ export function toUserMessage(error) {
   if (!axios.isAxiosError(error)) return FALLBACK_MESSAGE;
   if (!error.response) return 'We could not reach the store. Check your connection and try again.';
   const { status, data } = error.response;
-  const isSafeServerText = (status === 409 || status === 422) && typeof data?.error === 'string' && data.error.length <= 200;
+  const isSafeServerText = (status === 409 || status === 410 || status === 422) && typeof data?.error === 'string' && data.error.length <= 200;
   if (isSafeServerText) return data.error;
   if (status === 429 && retryAfterSeconds(error)) {
     const minutes = Math.ceil(retryAfterSeconds(error) / 60);
