@@ -44,12 +44,19 @@ export default function HeroSwiper({ products, currency }) {
   const swipeStartX = useRef(null);
   const sectionRef = useRef(null);
   const pointer = useRef({ x: 0, y: 0 }); // mouse position over the hero, -1..1, read by the 3D scene every frame
+  const [readySceneKey, setReadySceneKey] = useState(null);
   const [reduced] = useState(() => reducedMotion());
   const [mode, setMode] = useState('idle'); // idle -> loading -> ready, or off when 3D isn't available
   const [inView, setInView] = useState(true);
   const [tabVisible, setTabVisible] = useState(() => !document.hidden);
   const goTo = useCallback((target) => setIndex((target + slides.length) % slides.length), [slides.length]);
   const slide = slides[index];
+  const sceneKey = `${slide.key}:${slide.image ?? ''}`;
+  const sceneIsReady = mode === 'ready' && readySceneKey === sceneKey;
+  const onSceneReady = useCallback(() => {
+    setReadySceneKey(sceneKey);
+    setMode('ready');
+  }, [sceneKey]);
   const Icon = ICONS[index];
 
   // Start loading the scene once the browser is idle
@@ -84,7 +91,7 @@ export default function HeroSwiper({ products, currency }) {
   };
 
   return (
-    <section ref={sectionRef} className={`hero${mode === 'ready' ? ' is3d' : ''}`} aria-label="Featured collections">
+    <section ref={sectionRef} className={`hero${sceneIsReady ? ' is3d' : ''}`} aria-label="Featured collections">
       <div className="wrap hero-grid">
         <div className="hero-copy">
           <h1>Fine jewelry, tracked to your door.</h1>
@@ -100,17 +107,25 @@ export default function HeroSwiper({ products, currency }) {
           className="hero-stage" onPointerMove={handlePointerMove} onMouseLeave={() => { pointer.current = { x: 0, y: 0 }; }}
           onPointerDown={(event) => { swipeStartX.current = event.clientX; }} onPointerUp={handlePointerUp}
         >
-          <div className="hero-fallback" aria-hidden="true"><Icon /></div>
+          <div className="hero-fallback" aria-hidden="true">
+            {slide.image
+              ? <img className="hero-product-photo" src={slide.image} alt="" width="900" height="900" fetchPriority="high" />
+              : <Icon />}
+          </div>
           {(mode === 'loading' || mode === 'ready') && (
             <div className="stage3d" aria-hidden="true">
               <SceneBoundary onFail={() => setMode('off')}>
                 <Suspense fallback={null}>
-                  <HeroScene index={index} pointer={pointer} active={inView && tabVisible} reducedMotion={reduced} onReady={() => setMode('ready')} onFail={() => setMode('off')} />
+                  <HeroScene slides={slides} index={index} pointer={pointer} active={inView && tabVisible} reducedMotion={reduced} onReady={onSceneReady} onFail={() => setMode('off')} />
                 </Suspense>
               </SceneBoundary>
             </div>
           )}
-          {mode === 'ready' && <span className="stage-note" aria-hidden="true">3D illustration, not a product photo</span>}
+          {sceneIsReady && (
+            <span className="stage-note" aria-hidden="true">
+              {slide.product ? `${slide.product.name} · ${slide.product.sku}` : '3D illustration, not a product photo'}
+            </span>
+          )}
         </div>
 
         <div className="hero-index" role="group" aria-label="Choose a category to feature">

@@ -14,6 +14,8 @@ export function OrderAlertsProvider({ children }) {
   const { user } = useAuth();
   const [orders, setOrders] = useState(null);
   const [loadedUser, setLoadedUser] = useState(null);
+  const [loadError, setLoadError] = useState(null);
+  const [failedUser, setFailedUser] = useState(null);
   const [seen, setSeen] = useState(() => storage.get(SEEN_KEY, {}));
   const ordersRef = useRef([]);
   const userRef = useRef(user);
@@ -22,13 +24,25 @@ export function OrderAlertsProvider({ children }) {
   ordersRef.current = currentOrders ?? [];
 
   const refresh = useCallback(async () => {
-    if (!user) { setOrders(null); setLoadedUser(null); return; }
+    if (!user) {
+      setOrders(null);
+      setLoadedUser(null);
+      setLoadError(null);
+      setFailedUser(null);
+      return;
+    }
     try {
       const nextOrders = (await accountApi.listOrders()).orders;
       if (userRef.current !== user) return;
       setOrders(nextOrders);
       setLoadedUser(user);
-    } catch { /* keep the last known list for this signed-in user */ }
+      setLoadError(null);
+      setFailedUser(null);
+    } catch (error) {
+      if (userRef.current !== user) return;
+      setLoadError(error);
+      setFailedUser(user);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -38,6 +52,8 @@ export function OrderAlertsProvider({ children }) {
   }, [refresh]);
 
   const isUpdated = useCallback((order) => (seen[order.orderNumber] ?? -1) < order.step, [seen]);
+  const status = !user ? 'idle' : currentOrders !== null ? 'ready' : failedUser === user ? 'error' : 'loading';
+  const error = failedUser === user ? loadError : null;
   const markSeen = useCallback(() => setSeen((previous) => {
     const next = { ...previous, ...Object.fromEntries(ordersRef.current.map((o) => [o.orderNumber, o.step])) };
     storage.set(SEEN_KEY, next);
@@ -45,8 +61,8 @@ export function OrderAlertsProvider({ children }) {
   }), []);
 
   const value = useMemo(
-    () => ({ orders: currentOrders, refresh, markSeen, isUpdated, unseenCount: (currentOrders ?? []).filter(isUpdated).length }),
-    [currentOrders, refresh, markSeen, isUpdated],
+    () => ({ orders: currentOrders, status, error, refresh, markSeen, isUpdated, unseenCount: (currentOrders ?? []).filter(isUpdated).length }),
+    [currentOrders, status, error, refresh, markSeen, isUpdated],
   );
   return <OrderAlertsContext.Provider value={value}>{children}</OrderAlertsContext.Provider>;
 }

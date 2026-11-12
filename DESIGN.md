@@ -12,7 +12,7 @@ the brand is Nigerian, so no cultural motifs were added.)
 | Claims nobody had confirmed: "certified gemologist", "guaranteed for five years", "Certificate included", "30-day returns", "fully insured" | hero, trust strip, product page, emails, SEO | Removed. Owner fills `src/content/business.js`; nothing shows until then |
 | Placeholder phone, address and hours on the public contact page | ContactPage | Removed, same mechanism |
 | Four equal icon columns ("Authenticity", "Insured delivery", "Returns", "Advice") | HomePage | Replaced by a numbered, true "how an order works" list |
-| Stock icons used as hero imagery | HeroSwiper | Kept only as the no-WebGL fallback; labelled when 3D is shown |
+| Stock icons used as hero imagery | HeroSwiper | Replaced by a real in-stock catalogue photo on each category's 3D hero slide; an icon remains only when no photo is available |
 | Vague headline "Exquisite, handpicked pieces" | HomePage | "The collection", with real counts |
 | Brass text on cream at 3.1:1, white on brass 3.5:1, brass on hero tint 2.8:1 | tokens | Text brass is now #7b5d12 (5.6:1); badges are ink |
 | `scale()` on every button, card and image on hover | CSS | Removed. Hover now inverts colour |

@@ -142,11 +142,12 @@ select, .cur {
 .hero-stage { grid-area: stage; position: relative; aspect-ratio: 1 / 1; max-height: 34rem; width: 100%; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-md); overflow: hidden; touch-action: pan-y; }
 .hero-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--rule-strong); transition: opacity .6s var(--ease); }
 .hero-fallback .lucide { width: 38%; height: 38%; stroke-width: .6; }
+.hero-product-photo { width: 84%; height: 84%; object-fit: contain; }
 .hero.is3d .hero-fallback { opacity: 0; }
 .stage3d { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .8s var(--ease); }
 .hero.is3d .stage3d { opacity: 1; }
 .stage3d canvas { display: block; }
-.stage-note { position: absolute; left: var(--s-3); bottom: var(--s-2); font-size: var(--t-xs); color: var(--ink-2); }
+.stage-note { position: absolute; left: var(--s-3); bottom: var(--s-2); max-width: calc(100% - 2 * var(--s-3)); overflow: hidden; padding: .2rem .45rem; background: var(--surface); color: var(--ink-2); font-size: var(--t-xs); text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 520px) { .hero-index { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-1); } .hero-index button { padding-inline: .4rem; } .hero-index button b { display: block; margin: 0; } }
 @media (max-width: 900px) {
   .hero-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "stage" "index"; padding-block: var(--s-6); row-gap: var(--s-4); }

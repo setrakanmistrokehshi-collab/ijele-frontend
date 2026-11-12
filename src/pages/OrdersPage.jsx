@@ -16,7 +16,7 @@ const SPEC = { email, orderNumber };
 export default function OrdersPage({ justPaid = false }) {
   useSeo({ title: 'My orders', path: '/orders', noindex: true });
   const { user, loading: authLoading } = useAuth();
-  const { orders: accountOrders, refresh, markSeen, isUpdated } = useOrderAlerts();
+  const { orders: accountOrders, status: accountStatus, error: accountError, refresh, markSeen, isUpdated } = useOrderAlerts();
   const [guestOrders, setGuestOrders] = useState(null);
   const [error, setError] = useState('');
   const [lookup, setLookup] = useState({ email: '', orderNumber: '' });
@@ -65,7 +65,15 @@ export default function OrdersPage({ justPaid = false }) {
         </form>
       )}
       {error && <p role="alert" className="field-error">{error}</p>}
-      {orders?.length === 0 && <p className="note">No paid orders yet.</p>}
+      {user && accountStatus === 'loading' && <p className="note" role="status">Loading your order history…</p>}
+      {user && accountStatus === 'error' && (
+        <div className="state" role="alert">
+          <h2>Your orders couldn’t load</h2>
+          <p>{toUserMessage(accountError)}</p>
+          <button type="button" className="cta" onClick={refresh}>Try again</button>
+        </div>
+      )}
+      {orders?.length === 0 && <p className="note">{user ? 'No paid orders yet.' : 'No paid orders found for that email.'}</p>}
       {orders?.map((order) => <OrderCard key={order.orderNumber} order={order} isUpdated={user?.trusted && isUpdated(order)} />)}
     </div>
   );
