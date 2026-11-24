@@ -42,7 +42,7 @@ export default function TrackPage() {
       <h1 className="pg">Track your order</h1>
       <p className="lede">Enter the order number from your confirmation and the email used at checkout.</p>
       <form className="stack" onSubmit={handleSubmit} noValidate style={{ maxWidth: 460, margin: '1.5rem 0' }}>
-        <Field name="orderNumber" required maxLength={12} label="Order number" placeholder="AUR-1234567" autoCapitalize="characters" value={lookup.orderNumber} error={errors.orderNumber} onChange={(e) => setLookup({ ...lookup, orderNumber: e.target.value })} onValueChange={clear} onValueBlur={blur} />
+        <Field name="orderNumber" required maxLength={12} label="Order number" placeholder="IJL-1234567" autoCapitalize="characters" value={lookup.orderNumber} error={errors.orderNumber} onChange={(e) => setLookup({ ...lookup, orderNumber: e.target.value })} onValueChange={clear} onValueBlur={blur} />
         <Field name="email" type="email" required maxLength={254} label="Email address" autoComplete="email" value={lookup.email} error={errors.email} onChange={(e) => setLookup({ ...lookup, email: e.target.value })} onValueChange={clear} onValueBlur={blur} />
         <button className="cta" type="submit" disabled={busy}>{busy ? 'Checking…' : 'Track order'}</button>
       </form>

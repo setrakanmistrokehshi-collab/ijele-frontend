@@ -2,8 +2,8 @@
 // so no placeholder or invented claim ever reaches a customer. Fill these in when they are true.
 
 export const BUSINESS = {
-  name: 'Aurora',
-  descriptor: 'Fine Jewelry',
+  name: 'Ijele',
+  descriptor: 'Smart Jewelry',
   email: null,      // e.g. 'hello@yourdomain.com'
   phone: null,      // e.g. '+234 801 234 5678'  (shown as a tel: link)
   whatsapp: null,   // digits only with country code, e.g. '2348012345678'

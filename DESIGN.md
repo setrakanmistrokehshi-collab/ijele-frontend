@@ -1,4 +1,4 @@
-# Aurora storefront: design record
+# Ijele Smart Jewelry storefront: design record
 
 ## Audience and job
 Buyers of watches, chains and necklaces, mostly in Nigeria and abroad, paying in USD, NGN, EUR or GBP on Bachs's hosted checkout.

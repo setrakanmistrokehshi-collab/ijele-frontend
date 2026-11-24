@@ -1,5 +1,5 @@
 // Pure functions shared by the browser (useSeo) and the production server (server.js).
-export const SITE_NAME = 'Aurora Fine Jewelry';
+export const SITE_NAME = 'Ijele Smart Jewelry';
 export const DEFAULT_DESCRIPTION = 'Watches, chains and necklaces. Pay in USD, NGN, EUR or GBP and follow your order from packing to delivery.';
 
 export const pageTitle = (title) => (!title || title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`);

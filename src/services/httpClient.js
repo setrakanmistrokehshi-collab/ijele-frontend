@@ -9,12 +9,12 @@ const STATUS_MESSAGES = {
   429: 'Too many attempts. Please wait a few minutes and try again.',
 };
 
-/** One shared axios instance: same-origin, cookies on, short timeout, CSRF-defence header. */
+/** One shared axios instance: deployed backend URL in production, short timeout, CSRF-defence header. */
 export const http = axios.create({
-  baseURL: '/api',
+  baseURL: `${(import.meta.env.VITE_API_BACKEND_URL || 'https://ijele-jewery-backend.onrender.com').replace(/\/$/, '')}/api`,
   withCredentials: true,
   timeout: 15_000,
-  headers: { 'X-Requested-With': 'aurora' },
+  headers: { 'X-Requested-With': 'ijele' },
 });
 
 export const isUnauthorized = (error) => axios.isAxiosError(error) && error.response?.status === 401;

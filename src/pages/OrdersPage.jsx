@@ -60,7 +60,7 @@ export default function OrdersPage({ justPaid = false }) {
       {showLookupForm && (
         <form className="stack" onSubmit={handleLookup} noValidate style={{ maxWidth: 460 }}>
           <Field name="email" type="email" required maxLength={254} label="Email used at checkout" autoComplete="email" value={lookup.email} error={errors.email} onChange={(e) => setLookup({ ...lookup, email: e.target.value })} onValueChange={clear} onValueBlur={blur} />
-          <Field name="orderNumber" required maxLength={12} label="Any order number" placeholder="AUR-1234567" autoCapitalize="characters" value={lookup.orderNumber} error={errors.orderNumber} onChange={(e) => setLookup({ ...lookup, orderNumber: e.target.value })} onValueChange={clear} onValueBlur={blur} />
+          <Field name="orderNumber" required maxLength={12} label="Any order number" placeholder="IJL-1234567" autoCapitalize="characters" value={lookup.orderNumber} error={errors.orderNumber} onChange={(e) => setLookup({ ...lookup, orderNumber: e.target.value })} onValueChange={clear} onValueBlur={blur} />
           <button className="cta" type="submit" disabled={busy}>{busy ? 'Checking…' : 'View my orders'}</button>
         </form>
       )}

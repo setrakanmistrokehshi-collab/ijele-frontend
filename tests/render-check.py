@@ -32,7 +32,7 @@ def card(name, sku, cat, price, photos=1, sold=False, gift=None):
 
 def header(free=True):
     bar = '<div class="top">Free standard delivery on orders over $1,000.00</div>' if free else ''
-    return f'''{bar}<header class="main"><div class="wrap"><a class="logo" href="#">Aurora<small>FINE JEWELRY</small></a>
+    return f'''{bar}<header class="main"><div class="wrap"><a class="logo" href="#">Ijele<small>SMART JEWELRY</small></a>
 <nav class="links" aria-label="Primary"><a href="#">Watches</a><a href="#">Chains</a><a href="#">Necklaces</a></nav>
 <div class="icons"><select class="cur" aria-label="Currency"><option>USD</option></select>
 <button type="button" aria-label="Open bag, 2 items">{BAG}<span class="count" aria-hidden="true">2</span></button>
@@ -46,8 +46,8 @@ def hero():
 <div class="hero-stage"><div class="hero-fallback" aria-hidden="true">{BAG}</div></div>
 <div class="hero-index" role="group" aria-label="Choose a category to feature"><button type="button" aria-pressed="true"><b>01</b>Watches</button><button type="button" aria-pressed="false"><b>02</b>Chains</button><button type="button" aria-pressed="false"><b>03</b>Necklaces</button></div></div></section>'''
 
-CARDS = ''.join([card('Royal Chronograph', 'AUR-W-001', 'Watch', '$1,800.00', 3, gift='Aurora gift box'), card('Cuban Link', 'AUR-C-002', 'Chain', '$950.00', 2),
-                 card('Diamond Pendant Necklace', 'AUR-N-003', 'Necklace', '$2,400.00', 1), card('Aurora Diver', 'AUR-W-004', 'Watch', '$2,100.00', 1, sold=True)])
+CARDS = ''.join([card('Royal Chronograph', 'IJL-W-001', 'Watch', '$1,800.00', 3, gift='Ijele gift box'), card('Cuban Link', 'IJL-C-002', 'Chain', '$950.00', 2),
+                 card('Diamond Pendant Necklace', 'IJL-N-003', 'Necklace', '$2,400.00', 1), card('Ijele Diver', 'IJL-W-004', 'Watch', '$2,100.00', 1, sold=True)])
 CHIPS = '<button class="chip" type="button" aria-pressed="true">All pieces</button><button class="chip" type="button" aria-pressed="false">Watches</button><button class="chip" type="button" aria-pressed="false">Chains</button><button class="chip" type="button" aria-pressed="false">Necklaces</button>'
 def shop(body):
     return f'''<section class="sec" id="shop" aria-labelledby="shop-title"><div class="bar"><div><h2 id="shop-title">The collection</h2><p class="lede">Prices shown in USD.</p></div>
@@ -59,10 +59,10 @@ PROCESS = '''<section class="process" aria-labelledby="process-title"><h2 id="pr
 <li><div><h3>Pay on Bachs’s hosted page</h3><p>Checkout sends you to Bachs to pay. Payment details are entered there, not on this site.</p></div></li>
 <li><div><h3>Follow it until it arrives</h3><p>You receive the carrier and tracking number by email, and by push notification if you allow them. <a class="textlink" href="#">Track an order</a>.</p></div></li></ol></section>
 <section class="ask" aria-labelledby="ask-title"><h2 id="ask-title">Choosing a piece, or checking on an order?</h2><div><a class="cta" href="#">Message us</a><a class="cta quiet" href="#">Track an order</a></div></section>'''
-FOOTER = '''<footer><div class="wrap"><div class="foot"><div><span class="logo">Aurora<small>FINE JEWELRY</small></span><p>Watches, chains and necklaces. Prices in USD, NGN, EUR and GBP; payment on Bachs’s hosted checkout page.</p></div>
+FOOTER = '''<footer><div class="wrap"><div class="foot"><div><span class="logo">Ijele<small>SMART JEWELRY</small></span><p>Watches, chains and necklaces. Prices in USD, NGN, EUR and GBP; payment on Bachs’s hosted checkout page.</p></div>
 <nav aria-label="Shop"><h2>Shop</h2><ul><li><a href="#">Watches</a></li><li><a href="#">Chains</a></li><li><a href="#">Necklaces</a></li></ul></nav>
 <nav aria-label="Your order"><h2>Your order</h2><ul><li><a href="#">Track an order</a></li><li><a href="#">My orders</a></li></ul></nav>
-<div><h2>Help</h2><ul><li><a href="#">Contact us</a></li></ul></div></div><p class="legal">© 2026 Aurora Fine Jewelry.</p></div></footer>'''
+<div><h2>Help</h2><ul><li><a href="#">Contact us</a></li></ul></div></div><p class="legal">© 2026 Ijele Smart Jewelry.</p></div></footer>'''
 
 SKEL = '<div class="grid" aria-busy="true">' + ''.join('<div aria-hidden="true"><div class="skel img"></div><div class="skel line"></div><div class="skel line short"></div></div>' for _ in range(6)) + '</div>'
 ERR = '<div class="state" role="alert"><h3>The collection didn’t load</h3><p>We couldn’t reach the server. Check your connection and try again.</p><button type="button" class="cta">Try again</button></div>'
@@ -75,7 +75,7 @@ PAGES = {
  'home-error': header(False) + wrap(hero() + f'<div class="wrap">{shop(ERR)}</div>') + FOOTER,
  'home-empty': header(False) + wrap(hero() + f'<div class="wrap">{shop(EMPTY)}</div>') + FOOTER,
  'product': header() + wrap(f'''<div class="wrap sec"><nav class="crumbs" aria-label="Breadcrumb"><a href="#">The collection</a> / <a href="#">Watch</a></nav><article class="dlg"><div class="art"><div class="pgal"><img src="{photo(40,'Royal Chronograph')}" alt="Royal Chronograph" width="900" height="900"><ul class="pgal-thumbs" aria-label="Product photos">{"".join(f'<li><button type="button" aria-label="Show photo {i+1} of 3" aria-current="{str(i==0).lower()}"><img src="{photo(40+i*25,"t")}" alt="" width="60" height="60"></button></li>' for i in range(3))}</ul></div></div>
-<div class="body"><span class="ref">AUR-W-001 · Watch</span><h1 class="pg">Royal Chronograph</h1><p class="price">$1,800.00</p><p class="gift">{ICON}Free gift: Aurora gift box</p>
+<div class="body"><span class="ref">IJL-W-001 · Watch</span><h1 class="pg">Royal Chronograph</h1><p class="price">$1,800.00</p><p class="gift">{ICON}Free gift: Ijele gift box</p>
 <section><h2>About this piece</h2><p>A chronograph watch. Description text from the catalogue is shown here exactly as the admin entered it.</p></section>
 <section><h2>Delivery</h2><h3>Cost</h3><p>Choose standard or express at checkout. The fee depends on your city, state and country, and is shown before you pay.</p><h3>Tracking</h3><p>When your order ships you get the carrier and tracking number by email, and by push notification if you have allowed them.</p></section>
 <div class="buy"><div class="qty"><button type="button" aria-label="Decrease quantity">−</button><span aria-label="Quantity 1">1</span><button type="button" aria-label="Increase quantity">+</button></div><button class="cta" type="button">Add to bag</button></div></div></article></div>''') + FOOTER,
@@ -92,10 +92,10 @@ PAGES = {
 <div class="two"><div class="fld"><label for="n">Full name</label><input id="n" type="text"></div><div class="fld"><label for="em">Email address</label><input id="em" type="email"></div></div>
 <div class="two"><div class="fld"><label for="ph">Phone (optional)</label><input id="ph" type="tel" placeholder="+234 801 234 5678"></div><div class="fld"><label for="t">Topic</label><select id="t" class="f"><option>Product enquiry</option></select></div></div>
 <div class="fld"><label for="m">Message</label><textarea id="m" placeholder="How can we help?"></textarea></div><button class="cta" type="submit">Send message</button></form></div></div>''') + FOOTER,
- 'track': header() + wrap('''<div class="wrap sec"><h1 class="pg">Track your order</h1><form class="stack" style="max-width:460px"><div class="fld"><label for="o">Order number</label><input id="o" type="text" placeholder="AUR-1234567"></div><div class="fld"><label for="te">Email address</label><input id="te" type="email"></div><button class="cta" type="submit">Track order</button></form>
+ 'track': header() + wrap('''<div class="wrap sec"><h1 class="pg">Track your order</h1><form class="stack" style="max-width:460px"><div class="fld"><label for="o">Order number</label><input id="o" type="text" placeholder="IJL-1234567"></div><div class="fld"><label for="te">Email address</label><input id="te" type="email"></div><button class="cta" type="submit">Track order</button></form>
 <ol class="tl"><li class="d">Order confirmed</li><li class="d">Packed</li><li>Shipped</li><li>Delivered</li></ol></div>''') + FOOTER,
  'cart-open': header() + wrap('<div class="wrap sec"><h1 class="pg">Page behind the bag</h1></div>') + f'''<div class="scrim on"></div><aside class="drawer on" aria-label="Shopping bag"><div class="dh"><h2>Your bag</h2><button type="button" aria-label="Close bag">{ICON}</button></div>
-<ul><li><div class="thumb"><img src="{photo(40,'x')}" alt="" width="160" height="160"></div><div><h3>Royal Chronograph</h3><p>$1,800.00</p><p class="gift">{ICON}+ Aurora gift box (free)</p><div class="qty"><button type="button" aria-label="Decrease Royal Chronograph">−</button><span>1</span><button type="button" aria-label="Increase Royal Chronograph">+</button><button type="button" class="link">Remove</button></div></div></li></ul>
+<ul><li><div class="thumb"><img src="{photo(40,'x')}" alt="" width="160" height="160"></div><div><h3>Royal Chronograph</h3><p>$1,800.00</p><p class="gift">{ICON}+ Ijele gift box (free)</p><div class="qty"><button type="button" aria-label="Decrease Royal Chronograph">−</button><span>1</span><button type="button" aria-label="Increase Royal Chronograph">+</button><button type="button" class="link">Remove</button></div></div></li></ul>
 <div class="row"><span>Subtotal</span><strong class="price">$1,800.00</strong></div><p class="note">Shipping and taxes are shown at checkout.</p><button class="cta" type="button">Go to checkout</button></aside>''',
 }
 

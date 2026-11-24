@@ -5,7 +5,7 @@ const CONTROL = /[\u0000-\u001F\u007F]/g;
 const CONTROL_EXCEPT_NEWLINE = /[\u0000-\u0009\u000B-\u001F\u007F]/g;
 const EMAIL = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9-]*\.)+[A-Za-z]{2,}$/;
 const PHONE = /^\+?[0-9 ()-]{7,20}$/;
-const ORDER_NUMBER = /^AUR-\d{6,8}$/;
+const ORDER_NUMBER = /^(?:AUR|IJL)-\d{6,8}$/;
 
 /** Single line: control characters become spaces, runs of whitespace collapse, ends are trimmed. */
 export const cleanLine = (value) => String(value ?? '').normalize('NFC').replace(CONTROL, ' ').replace(/\s+/g, ' ').trim();
@@ -45,7 +45,7 @@ export const phone = (optional = false) => ({
 });
 export const orderNumber = {
   clean: (value) => cleanLine(value).toUpperCase(),
-  check: (value) => (ORDER_NUMBER.test(value) ? '' : 'Order numbers look like AUR-1234567.'),
+  check: (value) => (ORDER_NUMBER.test(value) ? '' : 'Order numbers look like IJL-1234567.'),
 };
 /** Passwords are never trimmed or altered, only length-checked (the server allows up to 256). */
 export const password = {
