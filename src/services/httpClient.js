@@ -9,9 +9,9 @@ const STATUS_MESSAGES = {
   429: 'Too many attempts. Please wait a few minutes and try again.',
 };
 
-/** One shared axios instance: deployed backend URL in production, short timeout, CSRF-defence header. */
+/** One shared axios instance: same-origin API, cookies on, short timeout, CSRF-defence header. */
 export const http = axios.create({
-  baseURL: `${(import.meta.env.VITE_API_BACKEND_URL || 'https://ijele-jewery-backend.onrender.com').replace(/\/$/, '')}/api`,
+  baseURL: '/api',
   withCredentials: true,
   timeout: 15_000,
   headers: { 'X-Requested-With': 'ijele' },
