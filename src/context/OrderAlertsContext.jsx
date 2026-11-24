@@ -29,7 +29,7 @@ export function OrderAlertsProvider({ children }) {
       setLoadedUser(null);
       setLoadError(null);
       setFailedUser(null);
-      return;
+      return null;
     }
     try {
       const nextOrders = (await accountApi.listOrders()).orders;
@@ -39,10 +39,12 @@ export function OrderAlertsProvider({ children }) {
       setLoadedUser(user);
       setLoadError(null);
       setFailedUser(null);
+      return nextOrders;
     } catch (error) {
       if (userRef.current !== user) return;
       setLoadError(error);
       setFailedUser(user);
+      return null;
     }
   }, [user]);
 

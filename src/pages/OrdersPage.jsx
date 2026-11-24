@@ -12,6 +12,9 @@ import { CHECKOUT_ATTEMPT_KEY, CHECKOUT_DRAFT_KEY, sessionDraft } from '../utils
 import { email, orderNumber } from '../utils/validation.js';
 
 const SPEC = { email, orderNumber };
+const CHECKOUT_STATUS_POLL_WINDOW_MS = 2 * 60 * 1000;
+const CHECKOUT_STATUS_POLL_INITIAL_DELAY_MS = 2_000;
+const CHECKOUT_ORDER_MAX_AGE_MS = 45 * 60 * 1000;
 
 export default function OrdersPage({ justPaid = false }) {
   useSeo({ title: 'My orders', path: '/orders', noindex: true });
@@ -25,13 +28,50 @@ export default function OrdersPage({ justPaid = false }) {
 
   const orders = user ? accountOrders : guestOrders;
   const showLookupForm = !authLoading && !user && !guestOrders;
+  const checkoutOrder = justPaid && user
+    ? accountOrders?.find((order) => {
+      const placedAt = Date.parse(order.placedAt);
+      return Number.isFinite(placedAt) && placedAt >= Date.now() - CHECKOUT_ORDER_MAX_AGE_MS;
+    })
+    : null;
+  const checkoutMessage = checkoutOrder?.status === 'paid'
+    ? 'Payment confirmed. Your order is shown below.'
+    : checkoutOrder?.status === 'review'
+      ? 'Your payment is being reviewed. Your order status is shown below.'
+      : ['cancelled', 'expired', 'failed'].includes(checkoutOrder?.status)
+        ? 'This checkout did not complete. If you were charged, contact us with your order number.'
+        : 'Your payment is being confirmed. Your order appears below once Bachs confirms it.';
 
   useEffect(() => {
     if (!justPaid) return;
-    refresh();
     // The order is paid, so the saved checkout details are no longer needed.
     sessionDraft.remove(CHECKOUT_DRAFT_KEY);
     sessionDraft.remove(CHECKOUT_ATTEMPT_KEY);
+
+    let active = true;
+    let timer;
+    let delay = CHECKOUT_STATUS_POLL_INITIAL_DELAY_MS;
+    const startedAt = Date.now();
+
+    async function pollForPaymentStatus() {
+      const refreshedOrders = await refresh();
+      if (!active || Date.now() - startedAt >= CHECKOUT_STATUS_POLL_WINDOW_MS) return;
+
+      const checkoutOrder = refreshedOrders?.find((order) => {
+        const placedAt = Date.parse(order.placedAt);
+        return Number.isFinite(placedAt) && placedAt >= startedAt - CHECKOUT_ORDER_MAX_AGE_MS;
+      });
+      if (checkoutOrder && checkoutOrder.status !== 'pending') return;
+
+      timer = setTimeout(pollForPaymentStatus, delay);
+      delay = Math.min(delay * 2, 15_000);
+    }
+
+    pollForPaymentStatus();
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, [justPaid, refresh]);
   useEffect(() => markSeen, [markSeen]); // leaving the page counts as "seen": the alert dot clears
 
@@ -56,7 +96,7 @@ export default function OrdersPage({ justPaid = false }) {
   return (
     <div className="wrap sec">
       <h1 className="pg">{justPaid ? 'Thank you for your order' : 'My orders'}</h1>
-      <p className="lede">{justPaid ? 'Your payment is being confirmed. Your order appears below once it is.' : 'Every piece you’ve ordered, with live shipping status.'}</p>
+      <p className="lede">{justPaid ? checkoutMessage : 'Every piece you’ve ordered, with live shipping status.'}</p>
       {showLookupForm && (
         <form className="stack" onSubmit={handleLookup} noValidate style={{ maxWidth: 460 }}>
           <Field name="email" type="email" required maxLength={254} label="Email used at checkout" autoComplete="email" value={lookup.email} error={errors.email} onChange={(e) => setLookup({ ...lookup, email: e.target.value })} onValueChange={clear} onValueBlur={blur} />
