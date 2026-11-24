@@ -9,12 +9,16 @@ export function OrderTimeline({ step }) {
 export default function OrderCard({ order, isUpdated = false }) {
   const placed = new Date(order.placedAt).toLocaleDateString('en', { dateStyle: 'medium' });
   const paid = ['paid', 'refund_pending', 'refunded'].includes(order.status);
-  const statusLabel = {
+  const statusLabel = ({
     pending: 'Payment pending',
+    paid: ORDER_STEPS[order.step],
     review: 'Payment under review',
+    cancelled: 'Cancelled',
+    expired: 'Checkout expired',
+    failed: 'Payment failed',
     refund_pending: 'Refund processing',
     refunded: 'Refunded',
-  }[order.status] ?? ORDER_STEPS[order.step];
+  })[order.status] ?? 'Order status unavailable';
 
   return (
     <article className="oc">
