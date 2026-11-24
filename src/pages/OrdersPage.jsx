@@ -73,7 +73,7 @@ export default function OrdersPage({ justPaid = false }) {
           <button type="button" className="cta" onClick={refresh}>Try again</button>
         </div>
       )}
-      {orders?.length === 0 && <p className="note">{user ? 'No paid orders yet.' : 'No paid orders found for that email.'}</p>}
+      {orders?.length === 0 && <p className="note">{user ? 'No orders yet.' : 'No paid orders found for that email.'}</p>}
       {orders?.map((order) => <OrderCard key={order.orderNumber} order={order} isUpdated={user?.trusted && isUpdated(order)} />)}
     </div>
   );

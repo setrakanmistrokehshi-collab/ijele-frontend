@@ -51,6 +51,7 @@ export default function Header() {
           <Link className="logo" to="/">{BUSINESS.name}<small>{BUSINESS.descriptor.toUpperCase()}</small></Link>
           <nav className="links" aria-label="Primary">
             {MAIN_LINKS.map((link) => <Link key={link.to} to={link.to}>{link.label}</Link>)}
+            <Link to="/orders">My orders{unseenCount > 0 && <span className="pill-alert">{unseenCount}</span>}</Link>
           </nav>
           <div className="icons">
             {currencySelect}
