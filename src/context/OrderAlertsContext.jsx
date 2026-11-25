@@ -5,6 +5,7 @@ import { useAuth } from './AuthContext.jsx';
 
 const SEEN_KEY = 'seenOrderSteps'; // { orderNumber: lastSeenStep } - no personal data
 const REFRESH_MS = 60_000;
+const PAYMENT_REFRESH_MS = 10_000;
 
 const OrderAlertsContext = createContext(null);
 export const useOrderAlerts = () => useContext(OrderAlertsContext);
@@ -49,9 +50,21 @@ export function OrderAlertsProvider({ children }) {
   }, [user]);
 
   useEffect(() => {
-    refresh();
-    const timer = setInterval(refresh, REFRESH_MS);
-    return () => clearInterval(timer);
+    let active = true;
+    let timer;
+
+    async function refreshOrders() {
+      const nextOrders = await refresh();
+      if (!active) return;
+      const paymentPending = nextOrders?.some((order) => order.paymentPending || order.status === 'pending');
+      timer = setTimeout(refreshOrders, paymentPending ? PAYMENT_REFRESH_MS : REFRESH_MS);
+    }
+
+    refreshOrders();
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, [refresh]);
 
   const isUpdated = useCallback((order) => (seen[order.orderNumber] ?? -1) < order.step, [seen]);

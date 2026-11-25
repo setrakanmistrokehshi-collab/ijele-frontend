@@ -61,7 +61,7 @@ export default function OrdersPage({ justPaid = false }) {
         const placedAt = Date.parse(order.placedAt);
         return Number.isFinite(placedAt) && placedAt >= startedAt - CHECKOUT_ORDER_MAX_AGE_MS;
       });
-      if (checkoutOrder && checkoutOrder.status !== 'pending') return;
+      if (checkoutOrder && !checkoutOrder.paymentPending && ['paid', 'expired', 'failed', 'cancelled'].includes(checkoutOrder.status)) return;
 
       timer = setTimeout(pollForPaymentStatus, delay);
       delay = Math.min(delay * 2, 15_000);
