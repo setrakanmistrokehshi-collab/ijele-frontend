@@ -40,6 +40,9 @@ export function toUserMessage(error) {
     const minutes = Math.ceil(retryAfterSeconds(error) / 60);
     return `Too many attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`;
   }
+  if (status === 502 && data?.outcomeUnknown === false) {
+    return 'The payment provider rejected checkout. No payment was taken. Please try again later or contact support.';
+  }
   if (status === 503) return 'We are very busy right now. Please wait a moment and try again.';
   return status >= 500 ? FALLBACK_MESSAGE : STATUS_MESSAGES[status] ?? FALLBACK_MESSAGE;
 }

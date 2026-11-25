@@ -99,7 +99,7 @@ export default function CheckoutPage() {
       const { url } = await checkoutApi.createSession(basket, idempotencyKeyFor(basket));
       redirectToPayment(url);
     } catch (caught) {
-      if (caught?.response?.status === 410) {
+      if (caught?.response?.status === 410 || caught?.response?.data?.outcomeUnknown === false) {
         attemptRef.current = { basket: '', key: '' };
         sessionDraft.set(CHECKOUT_ATTEMPT_KEY, attemptRef.current);
       }
