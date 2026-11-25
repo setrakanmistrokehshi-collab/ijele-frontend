@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Coins, LogOut, Mail, MapPin, Menu, Moon, Package, ShoppingBag, Sun, X } from 'lucide-react';
+import { ChevronDown, Coins, LogOut, Mail, MapPin, Menu, Moon, Package, ShoppingBag, Sun, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
@@ -25,9 +25,13 @@ export default function Header() {
   const { unseenCount } = useOrderAlerts();
   const zones = useZones();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState('');
-  const closeMenu = () => setMenuOpen(false);
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setCategoriesOpen(false);
+  };
   const handleSignOut = async () => {
     if (signingOut) return;
     setSigningOut(true);
@@ -89,7 +93,22 @@ export default function Header() {
       <aside className={`drawer mm${menuOpen ? ' on' : ''}`} aria-label="Menu" inert={!menuOpen}>
         <div className="dh"><span className="logo">{BUSINESS.name}</span><button type="button" aria-label="Close menu" onClick={closeMenu}><X /></button></div>
         <nav className="mnav" aria-label="Mobile">
-          {MAIN_LINKS.map((link) => <Link key={link.to} to={link.to} onClick={closeMenu}>{link.label}</Link>)}
+          <div className="mobile-categories">
+            <button
+              type="button"
+              className="mi category-toggle"
+              aria-expanded={categoriesOpen}
+              aria-controls="mobile-category-links"
+              onClick={() => setCategoriesOpen((open) => !open)}
+            >
+              <span>Categories</span><ChevronDown className="category-chevron" />
+            </button>
+            <div id="mobile-category-links" className="category-links" hidden={!categoriesOpen}>
+              {MAIN_LINKS.map((link) => (
+                <Link key={link.to} className="mi category-link" to={link.to} onClick={closeMenu}>{link.label}</Link>
+              ))}
+            </div>
+          </div>
           <Link className="mi" to="/orders" onClick={closeMenu}><Package />My orders{unseenCount > 0 && <span className="pill-alert">{unseenCount} update{unseenCount > 1 ? 's' : ''}</span>}</Link>
           <Link className="mi" to="/track" onClick={closeMenu}><MapPin />Track an order</Link>
           <Link className="mi" to="/contact" onClick={closeMenu}><Mail />Contact</Link>
