@@ -11,7 +11,7 @@ export default function OrderCard({ order, isUpdated = false }) {
   const paid = ['paid', 'refund_pending', 'refunded'].includes(order.status);
   const statusLabel = ({
     pending: 'Payment pending',
-    paid: ORDER_STEPS[order.step],
+    paid: 'Paid',
     review: 'Payment under review',
     cancelled: 'Cancelled',
     expired: 'Checkout expired',
