@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Coins, Mail, MapPin, Menu, Moon, Package, ShoppingBag, Sun, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Coins, LogOut, Mail, MapPin, Menu, Moon, Package, ShoppingBag, Sun, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
@@ -19,14 +19,28 @@ const MAIN_LINKS = [
 ];
 
 export default function Header() {
-  const { pathname } = useLocation();
   const { count, openCart } = useCart();
   const { currency, setCurrency, theme, toggleTheme } = useSettings();
   const { user, signOut } = useAuth();
   const { unseenCount } = useOrderAlerts();
   const zones = useZones();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState('');
   const closeMenu = () => setMenuOpen(false);
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    setSignOutError('');
+    try {
+      await signOut();
+      closeMenu();
+    } catch {
+      setSignOutError('Could not sign out. Check your connection and try again.');
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   // Only says "free delivery" when every shipping zone really offers it, using the threshold you set in the admin.
   const freeFromUsd = freeShippingFromUsd(zones);
@@ -52,6 +66,12 @@ export default function Header() {
           <nav className="links" aria-label="Primary">
             {MAIN_LINKS.map((link) => <Link key={link.to} to={link.to}>{link.label}</Link>)}
             <Link to="/orders">My orders{unseenCount > 0 && <span className="pill-alert">{unseenCount}</span>}</Link>
+            {user && (
+              <button type="button" className="signout" onClick={handleSignOut} disabled={signingOut}>
+                <LogOut /><span>{signingOut ? 'Signing out…' : 'Sign out'}</span>
+              </button>
+            )}
+            {signOutError && <p className="field-error signout-error" role="alert">{signOutError}</p>}
           </nav>
           <div className="icons">
             {currencySelect}
@@ -78,9 +98,12 @@ export default function Header() {
             {theme === 'dark' ? <Sun /> : <Moon />}<span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
           </button>
           <label className="mi"><Coins />Currency {currencySelect}</label>
-          {pathname !== '/checkout' && (user
-            ? <button type="button" className="mi" onClick={signOut}>Signed in as {user.name} · Sign out</button>
-            : <div className="mi"><GoogleSignInButton /></div>)}
+          {user
+            ? <button type="button" className="mi" onClick={handleSignOut} disabled={signingOut}>
+              <LogOut /><span>{signingOut ? 'Signing out…' : `Sign out (${user.name})`}</span>
+            </button>
+            : <div className="mi"><GoogleSignInButton /></div>}
+          {signOutError && <p className="field-error signout-error" role="alert">{signOutError}</p>}
         </nav>
       </aside>
     </>

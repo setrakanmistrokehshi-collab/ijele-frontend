@@ -24,13 +24,10 @@ export function AuthProvider({ children }) {
     setUser(data.user);
   }, []);
   const signOut = useCallback(async () => {
-    try {
-      await accountApi.signOut();
-    } finally {
-      setUser(null);
-      window.google?.accounts?.id?.disableAutoSelect?.(); // stop Google silently re-signing this browser in
-      unlinkPushIdentity();
-    }
+    await accountApi.signOut();
+    setUser(null);
+    window.google?.accounts?.id?.disableAutoSelect?.(); // stop Google silently re-signing this browser in
+    unlinkPushIdentity();
   }, []);
 
   const value = useMemo(() => ({ user, loading, signIn, signOut }), [user, loading, signIn, signOut]);

@@ -111,6 +111,12 @@ header.main .wrap { display: flex; align-items: center; justify-content: space-b
 nav.links { display: flex; gap: var(--s-6); font: 500 var(--t-sm) var(--sans); }
 nav.links a { padding: .6rem 0; border-bottom: 1px solid transparent; }
 nav.links a:hover { border-bottom-color: var(--ink); }
+nav.links .signout { display: inline-flex; align-items: center; gap: .4rem; padding: .6rem 0; border-bottom: 1px solid transparent; font: inherit; }
+nav.links .signout:hover { border-bottom-color: var(--ink); }
+nav.links .signout:disabled { opacity: .55; cursor: wait; }
+nav.links .signout .lucide { width: 16px; height: 16px; }
+.signout-error { color: var(--err); font-size: var(--t-xs); }
+.mnav .signout-error { margin: var(--s-2) 0; }
 .icons { display: flex; gap: var(--s-1); align-items: center; }
 .icons button { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--r-md); color: var(--ink); }
 .icons button:hover { background: var(--rule); }
