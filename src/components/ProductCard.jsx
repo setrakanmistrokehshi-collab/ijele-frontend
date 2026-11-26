@@ -22,9 +22,13 @@ export default function ProductCard({ product }) {
         <p className="price">{formatMoney(product.prices[currency], currency)}</p>
         {product.freeGift.enabled && <p className="gift"><Gift />Free gift: {product.freeGift.name}</p>}
         <div className="actions">
-          <button className="cta quiet" type="button" disabled={!product.inStock} onClick={() => addItem(product)}>
-            {product.inStock ? <>Add to bag<span className="vh">, {product.name}</span></> : 'Sold out'}
-          </button>
+          {product.priceOptions?.length > 0 && product.inStock ? (
+            <Link className="cta quiet" to={path}>Choose an option<span className="vh"> for {product.name}</span></Link>
+          ) : (
+            <button className="cta quiet" type="button" disabled={!product.inStock} onClick={() => addItem(product)}>
+              {product.inStock ? <>Add to bag<span className="vh">, {product.name}</span></> : 'Sold out'}
+            </button>
+          )}
         </div>
       </div>
     </article>

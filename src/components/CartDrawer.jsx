@@ -3,6 +3,7 @@ import { Gift, Minus, Plus, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useSettings } from '../context/SettingsContext.jsx';
+import { lineKey } from '../utils/cart.js';
 import { formatMoney } from '../utils/money.js';
 import ProductImage from './ProductImage.jsx';
 
@@ -27,17 +28,18 @@ export default function CartDrawer() {
         <ul>
           {items.length === 0 && <li><p>Your bag is empty. <Link className="textlink" to="/" onClick={closeCart}>Browse the collection</Link></p></li>}
           {items.map((item) => (
-            <li key={item.sku}>
+            <li key={lineKey(item)}>
               <div className="thumb"><ProductImage product={{ name: item.name, images: [item.image] }} size={160} /></div>
               <div>
                 <h3>{item.name}</h3>
+                {item.optionLabel && <p className="option-label">{item.optionLabel}</p>}
                 <p>{formatMoney(item.prices[currency], currency)}</p>
                 {item.giftName && <p className="gift"><Gift />+ {item.giftName} (free)</p>}
                 <div className="qty">
-                  <button type="button" aria-label={`Decrease ${item.name}`} onClick={() => setQuantity(item.sku, item.quantity - 1)}><Minus /></button>
+                  <button type="button" aria-label={`Decrease ${item.name}`} onClick={() => setQuantity(lineKey(item), item.quantity - 1)}><Minus /></button>
                   <span>{item.quantity}</span>
-                  <button type="button" aria-label={`Increase ${item.name}`} onClick={() => setQuantity(item.sku, item.quantity + 1)}><Plus /></button>
-                  <button type="button" className="link" onClick={() => removeItem(item.sku)}>Remove</button>
+                  <button type="button" aria-label={`Increase ${item.name}`} onClick={() => setQuantity(lineKey(item), item.quantity + 1)}><Plus /></button>
+                  <button type="button" className="link" onClick={() => removeItem(lineKey(item))}>Remove</button>
                 </div>
               </div>
             </li>

@@ -363,3 +363,11 @@ form.co > div { padding: var(--s-6); }
 .push-prompt p { font-size: var(--t-sm); margin: 0 0 var(--s-3); }
 .push-prompt-btns { display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap; }
 .push-prompt-btns button:last-child { min-height: 44px; padding: 0 var(--s-2); font-size: var(--t-sm); color: var(--ink-2); text-decoration: underline; }
+
+/* ---- Optional price options on a product page ---- */
+.price-options { border: 0; padding: 0; margin: 0 0 var(--s-3); display: grid; gap: var(--s-2); }
+.price-options legend { font-weight: 500; margin-bottom: var(--s-2); }
+.price-options label { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-3); border: 1px solid var(--rule-strong); border-radius: 8px; cursor: pointer; }
+.price-options label.on { border-width: 2px; }
+.price-options label span { flex: 1; }
+.option-label { opacity: .75; margin: 0; }

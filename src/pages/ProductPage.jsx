@@ -21,6 +21,7 @@ export default function ProductPage() {
   const { currency } = useSettings();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [chosenId, setChosenId] = useState('');
   const [attempt, setAttempt] = useState(0);
   const { status, data: product, error, notFound } = useRequest(() => catalogApi.get(sku), [sku, attempt]);
 
@@ -49,7 +50,11 @@ export default function ProductPage() {
     );
   }
 
-  const addToBag = () => { for (let i = 0; i < quantity; i += 1) addItem(product); };
+  // A piece with price options is bought with one of them (the first is pre-selected). Without options: one price.
+  const options = product.priceOptions ?? [];
+  const option = options.length > 0 ? options.find((candidate) => candidate.id === chosenId) ?? options[0] : undefined;
+  const unitPrices = option?.prices ?? product.prices;
+  const addToBag = () => { for (let i = 0; i < quantity; i += 1) addItem(product, option); };
   const checkoutNow = () => {
     addToBag();
     navigate('/checkout');
@@ -62,7 +67,18 @@ export default function ProductPage() {
         <div className="body">
           <span className="ref">{product.sku} · {product.category}</span>
           <h1 className="pg">{product.name}</h1>
-          <p className="price">{formatMoney(product.prices[currency], currency)}</p>
+          <p className="price">{formatMoney(unitPrices[currency], currency)}</p>
+          {options.length > 0 && (
+            <fieldset className="price-options">
+              <legend>Choose your price</legend>
+              {options.map((candidate) => (
+                <label key={candidate.id} className={candidate.id === option.id ? 'on' : undefined}>
+                  <input type="radio" name="price-option" checked={candidate.id === option.id} onChange={() => setChosenId(candidate.id)} />
+                  <span>{candidate.label}</span><strong>{formatMoney(candidate.prices[currency], currency)}</strong>
+                </label>
+              ))}
+            </fieldset>
+          )}
           {product.freeGift.enabled && <p className="gift"><Gift />Free gift: {product.freeGift.name}</p>}
           <section><h2>About this piece</h2><p>{product.description}</p></section>
           <section>
@@ -79,7 +95,7 @@ export default function ProductPage() {
             </div>
             <div className="product-total" aria-live="polite">
               <span>For {quantity} {quantity === 1 ? 'piece' : 'pieces'}</span>
-              <strong>{formatMoney(product.prices[currency] * quantity, currency)}</strong>
+              <strong>{formatMoney(unitPrices[currency] * quantity, currency)}</strong>
             </div>
             <div className="product-actions">
               <button className="cta quiet" type="button" disabled={!product.inStock} onClick={addToBag}>

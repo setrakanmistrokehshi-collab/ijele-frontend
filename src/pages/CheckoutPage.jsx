@@ -12,6 +12,7 @@ import { useFormValidation } from '../hooks/useFormValidation.js';
 import Field from '../components/Field.jsx';
 import { CHECKOUT_ATTEMPT_KEY, CHECKOUT_DRAFT_KEY, sessionDraft } from '../utils/storage.js';
 import { line, phone as phoneRule } from '../utils/validation.js';
+import { lineKey } from '../utils/cart.js';
 import { formatMoney } from '../utils/money.js';
 import { USD_EXCHANGE_RATES, shippingFee, countriesFromZones, freeShippingFromUsd } from '../utils/shipping.js';
 import { useZones } from '../hooks/useZones.js';
@@ -24,16 +25,22 @@ const SPEC = {
 };
 const EMPTY_FORM = { phone: '', firstName: '', lastName: '', line1: '', city: '', postal: '', country: 'Nigeria', state: '', method: 'standard' };
 
+// The payment provider's own domain(s). If Bachs' hosted checkout lives elsewhere, set VITE_PAYMENT_HOST_SUFFIXES
+// (comma separated, for example ".bachs.io,.bachs.app") and rebuild.
+const PAYMENT_HOST_SUFFIXES = (import.meta.env.VITE_PAYMENT_HOST_SUFFIXES ?? '.bachs.io')
+  .split(',').map((suffix) => suffix.trim()).filter(Boolean);
+
 /** Only ever navigate to the payment provider's own https domain. */
 function redirectToPayment(url) {
   const { protocol, hostname } = new URL(url);
-  if (protocol !== 'https:' || !hostname.endsWith('.bachs.io')) throw new Error('Unexpected payment address');
+  const isPaymentHost = PAYMENT_HOST_SUFFIXES.some((suffix) => hostname.endsWith(suffix));
+  if (protocol !== 'https:' || !isPaymentHost) throw new Error('Unexpected payment address');
   window.location.assign(url);
 }
 
 export default function CheckoutPage() {
   useSeo({ title: 'Checkout', path: '/checkout', noindex: true });
-  const { items, subtotal } = useCart();
+  const { items, subtotal, refreshFromCatalog } = useCart();
   const { currency } = useSettings();
   const { user, loading: authLoading } = useAuth();
   // The form is kept for the life of the tab, so a reload, a dropped connection or a cancelled payment brings the
@@ -49,6 +56,7 @@ export default function CheckoutPage() {
   const { errors, clear, blur, validate } = useFormValidation(SPEC);
   const zones = useZones();
   const attemptRef = useRef(sessionDraft.get(CHECKOUT_ATTEMPT_KEY, { basket: '', key: '' }));
+  useEffect(() => { refreshFromCatalog(); }, [refreshFromCatalog]); // show today's prices before the customer pays
 
   if (items.length === 0) return <div className="wrap sec"><h1 className="pg">Your bag is empty</h1><Link className="cta" to="/">Continue shopping</Link></div>;
   if (authLoading) return <div className="wrap sec"><h1 className="pg">Checkout</h1><p role="status">Checking your sign-in…</p></div>;
@@ -91,7 +99,7 @@ export default function CheckoutPage() {
     try {
       const basket = {
         currency,
-        items: items.map(({ sku, quantity }) => ({ sku, qty: quantity })), // never prices: the server looks those up
+        items: items.map(({ sku, quantity, optionId }) => ({ sku, qty: quantity, ...(optionId && { optionId }) })), // never prices: the server looks those up
         phone: values.phone,
         address: { name: `${values.firstName} ${values.lastName}`, line1: values.line1, city: values.city, postal: values.postal },
         shipping: { country: form.country, state: form.state, city: form.city, method: form.method === 'express' ? 'exp' : 'std' },
@@ -151,9 +159,9 @@ export default function CheckoutPage() {
           <h2>Order summary</h2>
           <ul>
             {items.map((item) => (
-              <li key={item.sku}><span>{item.name} × {item.quantity}</span><span>{formatMoney(item.prices[currency] * item.quantity, currency)}</span></li>
+              <li key={lineKey(item)}><span>{item.name}{item.optionLabel ? ` (${item.optionLabel})` : ''} × {item.quantity}</span><span>{formatMoney(item.prices[currency] * item.quantity, currency)}</span></li>
             ))}
-            {items.filter((item) => item.giftName).map((item) => <li key={`gift-${item.sku}`} className="note"><span>+ {item.giftName}</span><span>Free</span></li>)}
+            {items.filter((item) => item.giftName).map((item) => <li key={`gift-${lineKey(item)}`} className="note"><span>+ {item.giftName}</span><span>Free</span></li>)}
           </ul>
           <div className="row"><span>Subtotal</span><span>{formatMoney(subtotal, currency)}</span></div>
           <div className="row"><span>Shipping</span><span>{fee ? formatMoney(fee, currency) : 'Free'}</span></div>
