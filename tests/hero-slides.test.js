@@ -13,7 +13,7 @@ test('hero slides select an in-stock real product photo for each category', () =
 
   const slides = buildSlides(products, 'USD');
   assert.equal(slides[0].product.sku, 'WATCH-2');
-  assert.equal(slides[0].image, 'https://res.cloudinary.com/example/image/upload/f_auto,q_auto,c_fill,w_900,h_900/v123/watch.jpg');
+  assert.equal(slides[0].image, 'https://res.cloudinary.com/example/image/upload/f_auto,q_auto,c_limit,w_1200,h_1200/v123/watch.jpg');
   assert.equal(slides[1].product.sku, 'CHAIN-1');
   assert.equal(slides[2].product, null);
   assert.equal(slides[2].image, null);

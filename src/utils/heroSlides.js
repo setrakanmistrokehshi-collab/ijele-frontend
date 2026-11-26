@@ -1,5 +1,5 @@
 import { formatMoney } from './money.js';
-import { galleryUrls, optimise } from './productImages.js';
+import { galleryUrls, optimiseFit } from './productImages.js';
 
 // One slide per category, in the same order as the 3D models (watch, chain, necklace).
 const CATEGORIES = [
@@ -22,7 +22,7 @@ export function buildSlides(products, currency) {
     const prices = pieces.map((product) => product.prices?.[currency]).filter(Number.isFinite);
     const from = prices.length ? formatMoney(Math.min(...prices), currency) : null;
     const summary = pieces.length ? `${pieces.length} ${pieces.length === 1 ? 'piece' : 'pieces'}${from ? `, from ${from}` : ''}` : null;
-    const image = featuredProduct ? optimise(galleryUrls(featuredProduct, 1)[0], 900) : null;
+    const image = featuredProduct ? optimiseFit(galleryUrls(featuredProduct, 1)[0], 1200) : null;
     return { key, label, one, summary, product: featuredProduct, image, to: `/?category=${key}`, cta: `Shop ${label.toLowerCase()}` };
   });
 }
