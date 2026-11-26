@@ -9,6 +9,10 @@ export function OrderTimeline({ step }) {
 export default function OrderCard({ order, isUpdated = false }) {
   const placed = new Date(order.placedAt).toLocaleDateString('en', { dateStyle: 'medium' });
   const paid = ['paid', 'refund_pending', 'refunded'].includes(order.status);
+  const shippingDetails = [
+    order.carrier,
+    order.trackingNumber && `Tracking: ${order.trackingNumber}`,
+  ].filter(Boolean).join(' · ');
   const statusLabel = ({
     pending: 'Payment pending',
     paid: 'Paid',
@@ -22,7 +26,13 @@ export default function OrderCard({ order, isUpdated = false }) {
 
   return (
     <article className="oc">
-      <div className="row"><h3>{order.orderNumber}{isUpdated && <span className="upd">Updated</span>}</h3><strong>{formatMoney(order.total, order.currency)}</strong></div>
+      <div className="oc-head">
+        <h3>{order.orderNumber}</h3>
+        <div className="oc-price">
+          <strong>{formatMoney(order.total, order.currency)}</strong>
+          {isUpdated && <span className="upd">Updated</span>}
+        </div>
+      </div>
       <p className="note">{placed} · {order.itemCount} item{order.itemCount === 1 ? '' : 's'} · {statusLabel}</p>
       <ul>
         {order.items.map((item) => (
@@ -30,7 +40,7 @@ export default function OrderCard({ order, isUpdated = false }) {
         ))}
       </ul>
       {paid && <OrderTimeline step={order.step} />}
-      {order.carrier && <p className="note">{order.carrier} · {order.trackingNumber}</p>}
+      {shippingDetails && <p className="note oc-shipping">{shippingDetails}</p>}
     </article>
   );
 }

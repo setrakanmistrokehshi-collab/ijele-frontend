@@ -68,7 +68,7 @@ export default function ProductPage() {
           <section>
             <h2>Delivery</h2>
             <h3>Cost</h3><p>Choose standard or express at checkout. The fee depends on your city, state and country, and is shown before you pay.</p>
-            <h3>Tracking</h3><p>When your order ships you get the carrier and tracking number by email, and by push notification if you have allowed them.</p>
+            <h3>Tracking</h3><p>Shipping updates arrive by email and, if enabled, push notification. Carrier and tracking details are included when available.</p>
             {POLICY_TITLES.filter(([key]) => POLICIES[key]).map(([key, title]) => <div key={key}><h3>{title}</h3><p>{POLICIES[key]}</p></div>)}
           </section>
           <div className="buy">

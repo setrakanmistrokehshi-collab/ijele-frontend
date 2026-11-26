@@ -108,7 +108,7 @@ export default function HomePage() {
             <li><div><h3>Choose in your currency</h3><p>Prices show in USD, NGN, EUR or GBP. Change the currency from the header at any time.</p></div></li>
             <li><div><h3>See the delivery fee before you pay</h3><p>The fee depends on your city, state and country, with standard and express options. It is on the checkout page before you commit.</p></div></li>
             <li><div><h3>Pay on Bachs’s hosted page</h3><p>Checkout sends you to Bachs to pay. Payment details are entered there, not on this site.</p></div></li>
-            <li><div><h3>Follow it until it arrives</h3><p>When your order ships you receive the carrier and tracking number by email, and by push notification if you allow them. You can also look up any order on the <Link className="textlink" to="/track">Track an order</Link> page.</p></div></li>
+            <li><div><h3>Follow it until it arrives</h3><p>When your order ships, we’ll send an update by email and, if enabled, push notification. Carrier and tracking details are included when available. You can also look up any order on the <Link className="textlink" to="/track">Track an order</Link> page.</p></div></li>
           </ol>
         </section>
 
