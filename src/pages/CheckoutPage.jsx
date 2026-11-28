@@ -21,7 +21,7 @@ import { DELIVERY } from '../content/business.js';
 // Mirrors the server's checkout rules; address.name is "first last" and the server allows 120 characters in total.
 const SPEC = {
   phone: phoneRule(), firstName: line('First name', { max: 58 }), lastName: line('Last name', { max: 58 }),
-  line1: line('Street address', { max: 200 }), city: line('City', { max: 100 }), postal: line('Postal code', { max: 20 }),
+  line1: line('Street address', { max: 200 }), city: line('City', { max: 100 }), postal: line('Postal code', { min: 0, max: 20 }),
 };
 const EMPTY_FORM = { phone: '', firstName: '', lastName: '', line1: '', city: '', postal: '', country: 'Nigeria', state: '', method: 'standard' };
 
@@ -132,7 +132,7 @@ export default function CheckoutPage() {
           <fieldset><legend>Delivery address</legend><div className="stack">
             <div className="two">{field('firstName', 'First name', { autoComplete: 'given-name' })}{field('lastName', 'Last name', { autoComplete: 'family-name' })}</div>
             {field('line1', 'Street address', { autoComplete: 'street-address' })}
-            <div className="two">{field('city', 'City', { autoComplete: 'address-level2' })}{field('postal', 'Postal code', { autoComplete: 'postal-code' })}</div>
+            <div className="two">{field('city', 'City', { autoComplete: 'address-level2' })}{field('postal', 'Postal code (optional)', { required: false, autoComplete: 'postal-code' })}</div>
             <div className="fld">
               <label htmlFor="country">Country</label>
               <select id="country" className="f" name="country" value={form.country} onChange={handleChange}>

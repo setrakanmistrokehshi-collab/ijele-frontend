@@ -8,8 +8,12 @@ import { SECURITY_HEADERS } from './security-headers.js';
 import { buildSitemap, resolveSeo, robotsTxt } from './seo-renderer.js';
 
 const MIME_TYPES = {
-  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml',
-  '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.json': 'application/json', '.txt': 'text/plain',
+  '.css':  'text/css; charset=utf-8',
+  '.png':  'image/png',
+  '.ico':  'image/x-icon',
+  '.woff2':'font/woff2',
+  '.json': 'application/json; charset=utf-8',
+  '.txt':  'text/plain; charset=utf-8',
 };
 
 function send(response, status, headers, body) {
