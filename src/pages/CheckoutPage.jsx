@@ -22,6 +22,7 @@ import { DELIVERY } from '../content/business.js';
 const SPEC = {
   phone: phoneRule(), firstName: line('First name', { max: 58 }), lastName: line('Last name', { max: 58 }),
   line1: line('Street address', { max: 200 }), city: line('City', { max: 100 }), postal: line('Postal code', { min: 0, max: 20 }),
+  state: line('State or province', { max: 100 }),
 };
 const EMPTY_FORM = { phone: '', firstName: '', lastName: '', line1: '', city: '', postal: '', country: 'Nigeria', state: '', method: 'standard' };
 
@@ -139,7 +140,7 @@ export default function CheckoutPage() {
                 {countries.map((country) => <option key={country}>{country}</option>)}
               </select>
             </div>
-            <Field name="state" value={form.state} onChange={handleChange} onValueChange={clear} autoComplete="address-level1" label="State or province (optional)" />
+            <Field name="state" value={form.state} onChange={handleChange} onValueChange={clear} onValueBlur={blur} error={errors.state} required autoComplete="address-level1" label="State or province" />
           </div></fieldset>
           <fieldset><legend>Delivery method</legend><div className="stack">
             {[['standard', `Standard delivery${DELIVERY.standard ? `, ${DELIVERY.standard}` : ''}`], ['express', `Express delivery${DELIVERY.express ? `, ${DELIVERY.express}` : ''}`]].map(([method, label]) => {
