@@ -14,8 +14,9 @@ import { CHECKOUT_ATTEMPT_KEY, CHECKOUT_DRAFT_KEY, sessionDraft } from '../utils
 import { line, phone as phoneRule } from '../utils/validation.js';
 import { lineKey } from '../utils/cart.js';
 import { formatMoney } from '../utils/money.js';
-import { USD_EXCHANGE_RATES, shippingFee, countriesFromZones, freeShippingFromUsd } from '../utils/shipping.js';
+import { countriesFromZones } from '../utils/shipping.js';
 import { useZones } from '../hooks/useZones.js';
+import { useShippingQuote } from '../hooks/useShippingQuote.js';
 import { DELIVERY } from '../content/business.js';
 
 // Mirrors the server's checkout rules; address.name is "first last" and the server allows 120 characters in total.
@@ -59,6 +60,10 @@ export default function CheckoutPage() {
   const attemptRef = useRef(sessionDraft.get(CHECKOUT_ATTEMPT_KEY, { basket: '', key: '' }));
   useEffect(() => { refreshFromCatalog(); }, [refreshFromCatalog]); // show today's prices before the customer pays
 
+  // Live, server-computed fees keep the checkout preview in sync with the backend.
+  const standardQuote = useShippingQuote({ items, country: form.country, state: form.state, city: form.city, method: 'std', currency });
+  const expressQuote = useShippingQuote({ items, country: form.country, state: form.state, city: form.city, method: 'exp', currency });
+
   if (items.length === 0) return <div className="wrap sec"><h1 className="pg">Your bag is empty</h1><Link className="cta" to="/">Continue shopping</Link></div>;
   if (authLoading) return <div className="wrap sec"><h1 className="pg">Checkout</h1><p role="status">Checking your sign-in…</p></div>;
   if (!user) {
@@ -72,9 +77,9 @@ export default function CheckoutPage() {
   }
 
   const email = user.email;
-  const fee = shippingFee(zones, form.country, form.state, form.city, form.method, currency, subtotal);
-  const freeFromUsd = freeShippingFromUsd(zones);
   const countries = countriesFromZones(zones).length > 0 ? countriesFromZones(zones) : ['Nigeria'];
+  const activeQuote = form.method === 'express' ? expressQuote : standardQuote;
+  const fee = activeQuote.fee;
   const handleChange = (event) => setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
 
   // One random key per customer and basket. If a request is retried (a slow network, a second tap), the server
@@ -143,16 +148,17 @@ export default function CheckoutPage() {
             <Field name="state" value={form.state} onChange={handleChange} onValueChange={clear} onValueBlur={blur} error={errors.state} required autoComplete="address-level1" label="State or province" />
           </div></fieldset>
           <fieldset><legend>Delivery method</legend><div className="stack">
-            {[['standard', `Standard delivery${DELIVERY.standard ? `, ${DELIVERY.standard}` : ''}`], ['express', `Express delivery${DELIVERY.express ? `, ${DELIVERY.express}` : ''}`]].map(([method, label]) => {
-              const cost = shippingFee(zones, form.country, form.state, form.city, method, currency, subtotal);
-              return (
-                <label key={method} className="opt">
-                  <input type="radio" name="method" value={method} checked={form.method === method} onChange={handleChange} />
-                  {label}<b>{cost ? formatMoney(cost, currency) : 'Free'}</b>
-                </label>
-              );
-            })}
-          </div><p className="note">The fee depends on your city, state and country.{freeFromUsd ? ` Standard delivery is free on orders over ${formatMoney(Math.round(freeFromUsd * (USD_EXCHANGE_RATES[currency] ?? 1)), currency)}.` : ''}</p></fieldset>
+            {[['standard', `Standard delivery${DELIVERY.standard ? `, ${DELIVERY.standard}` : ''}`, standardQuote], ['express', `Express delivery${DELIVERY.express ? `, ${DELIVERY.express}` : ''}`, expressQuote]].map(([method, label, quote]) => (
+              <label key={method} className="opt">
+                <input type="radio" name="method" value={method} checked={form.method === method} onChange={handleChange} />
+                {label}<b>{quote.loading ? '…' : quote.fee ? formatMoney(quote.fee, currency) : 'Free'}</b>
+              </label>
+            ))}
+          </div><p className="note">
+            The fee depends on your city, state and country.
+            {activeQuote.freeStandardThreshold ? ` Standard delivery is free on orders over ${formatMoney(activeQuote.freeStandardThreshold, currency)}.` : ''}
+            {activeQuote.error ? ' Showing the last known fee — this will be confirmed at payment.' : ''}
+          </p></fieldset>
           <p className="note">You pay on Bachs’s hosted checkout page. Card details are entered there, not on this site.</p>
           {error && <p role="alert" className="field-error">{error}</p>}
         </div>

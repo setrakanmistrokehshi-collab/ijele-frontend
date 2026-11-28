@@ -12,6 +12,9 @@ export const catalogApi = {
 export const checkoutApi = { createSession: (payload, idempotencyKey) =>
     unwrap(http.post('/checkout/create-session', payload, { headers: { 'Idempotency-Key': idempotencyKey } })) };
 
+// The real fee, computed server-side from live zones and today's prices.
+export const shippingApi = { quote: (payload) => unwrap(http.post('/shipping/quote', payload)) };
+
 export const ordersApi = {
   track: (lookup) => unwrap(http.post('/orders/track', lookup)),
   listForGuest: (lookup) => unwrap(http.post('/orders/mine', lookup)),
